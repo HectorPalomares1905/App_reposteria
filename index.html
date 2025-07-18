@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jelly Shop</title>
+  
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Estilos -->
+  <link rel="stylesheet" href="styles/styles.css" />
+</head>
+<body>
+  <div class="global-wrapper">
+    <div class="app-container">
+      <div class="search-container">
+        <input type="text" placeholder="Search..." class="search-input" />
+      </div>
+      
+      <div class="products-grid">
+        <div class="product-card card">
+          <img src="Images/1.png" alt="Rainbow Jelly" />
+          <p class="product-name">Gelatina de Bombones</p>
+          <p class="product-price">$4.99</p>
+        </div>
+        <div class="product-card card">
+          <img src="Images/2.png" alt="Blueberry Jelly" />
+          <p class="product-name">Gelatina Frutal</p>
+          <p class="product-price">$5.99</p>
+        </div>
+        <div class="product-card card">
+          <img src="Images/3.png" alt="Strawberry Jelly" />
+          <p class="product-name">Mouse de mango</p>
+          <p class="product-price">$3.99</p>
+        </div>
+        <div class="product-card card">
+          <img src="Images/4.png" alt="Lime Jelly" />
+          <p class="product-name">Gelatina de sabores</p>
+          <p class="product-price">$4.49</p>
+        </div>
+        <div class="product-card card">
+          <img src="Images/5.png" alt="Mango Jelly" />
+          <p class="product-name">Gelatina Flotante</p>
+          <p class="product-price">$5.49</p>
+        </div>
+        <div class="product-card card">
+          <img src="Images/6.png" alt="Raspberry Jelly" />
+          <p class="product-name">Gelatina de tres Chocolate</p>
+          <p class="product-price">$4.79</p>
+        </div>
+        <div class="product-card card">
+          <img src="Images/7.png" alt="Raspberry Jelly" />
+          <p class="product-name">Gelatina de Zanahoria</p>
+          <p class="product-price">$4.79</p>
+        </div>
+        <div class="product-card card">
+          <img src="Images/8.png" alt="Raspberry Jelly" />
+          <p class="product-name">Pan de Zanahoria</p>
+          <p class="product-price">$4.79</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Navegación inferior fija -->
+    <div class="bottom-nav">
+    <!--  <a href="#" class="nav-item">🏠</a> -->
+      <a href="#" class="nav-item cart">🛒</a>
+    </div>
+  </div>
+
+  <!-- Modal del Carrito -->
+  <div id="cartModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🛒 Mi Carrito</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div id="cartItems"></div>
+      </div>
+      <div class="modal-footer">
+        <div class="total-section">
+          <span>Total:</span>
+          <span id="totalPrice">$0.00</span>
+        </div>
+        <button class="confirm-btn" id="confirmOrder">
+          📱 Confirmar Pedido por WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/cart.js"></script>
+</body>
+</html>
