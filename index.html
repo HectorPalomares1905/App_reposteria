@@ -25,10 +25,13 @@
         </div>
       </div>
       
+    <div class="cart-wrapper">
       <button class="cart-button" id="cartButton" aria-label="Ver carrito">
         <span class="cart-icon">🛒</span>
         <span class="cart-count" id="cartCount">0</span>
       </button>
+      <span class="cart-label">Compra aquí</span>
+    </div>
     </div>
   </header>
 
@@ -43,6 +46,10 @@
       <!-- Grid de productos -->
       <div class="products-grid" id="productsGrid">
         <!-- Los productos se cargarán dinámicamente -->
+      </div>
+      
+      <div class="notice-bar">
+        <p>📅 Recuerda que los pedidos se hacen como mínimo de 3 a 2 días de anticipación. ¡Gracias por su compra!</p>
       </div>
     </div>
   </main>
@@ -62,16 +69,25 @@
         <!-- Los items del carrito se cargarán aquí -->
       </div>
       
-      <div class="modal-footer">
-        <div class="total-row">
-          <span class="total-label">Total:</span>
-          <span class="total-amount" id="totalAmount">$0.00 MXN</span>
-        </div>
-        <button class="btn-whatsapp" id="confirmButton">
-          <span class="btn-icon">📱</span>
-          <span class="btn-text">Enviar Pedido por WhatsApp</span>
-        </button>
-      </div>
+       <div class="modal-footer">
+         <div class="delivery-section">
+           <label class="delivery-label">Nombre:</label>
+           <input type="text" id="customerName" class="delivery-input" placeholder="Tu nombre" required />
+         </div>
+         <div class="delivery-section">
+           <label class="delivery-label">📅 Fecha y hora tentativa:</label>
+           <input type="datetime-local" id="deliveryDateTime" class="delivery-input" required />
+           <small class="delivery-note">*Se confirmará 2-3 días antes</small>
+         </div>
+         <div class="total-row">
+           <span class="total-label">Total:</span>
+           <span class="total-amount" id="totalAmount">$0.00 MXN</span>
+         </div>
+         <button class="btn-whatsapp" id="confirmButton">
+           <span class="btn-icon">📱</span>
+           <span class="btn-text">Enviar Pedido por WhatsApp</span>
+         </button>
+       </div>
     </div>
   </div>
 
