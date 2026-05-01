@@ -2,11 +2,11 @@
 // CONFIGURACIÓN
 // ================================================
 const CONFIG = {
-  WHATSAPP_NUMBER: '5217713439201', // Número de WhatsApp con código de país
+  WHATSAPP_NUMBER: '5217713439201',
 };
 
 // ================================================
-// DATOS DE PRODUCTOS (de tu tabla de Google Sheets)
+// DATOS DE PRODUCTOS
 // ================================================
 const PRODUCTOS = [
   { id: 1, nombre: 'Gelatina de Bombón', precio: 350, imagen: 'Images/1.png' },
@@ -27,13 +27,12 @@ const PRODUCTOS = [
 // ESTADO GLOBAL
 // ================================================
 let carrito = [];
-let productosActuales = [...PRODUCTOS];
 
 // ================================================
 // INICIALIZACIÓN
 // ================================================
 document.addEventListener('DOMContentLoaded', () => {
-  renderizarProductos(productosActuales);
+  renderizarProductos();
   configurarEventListeners();
   actualizarContadorCarrito();
 });
@@ -41,26 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
 // ================================================
 // RENDERIZAR PRODUCTOS
 // ================================================
-function renderizarProductos(productos) {
+function renderizarProductos() {
   const grid = document.getElementById('productsGrid');
-  const noResults = document.getElementById('noResults');
   
-  if (productos.length === 0) {
-    grid.innerHTML = '';
-    noResults.style.display = 'block';
-    return;
-  }
-  
-  noResults.style.display = 'none';
-  
-  grid.innerHTML = productos.map(producto => `
+  grid.innerHTML = PRODUCTOS.map(producto => `
     <div class="product-card" onclick="agregarAlCarrito(${producto.id})">
       <img 
         src="${producto.imagen}" 
         alt="${producto.nombre}" 
         class="product-image"
         loading="lazy"
-        onerror="this.src='Images/default.png'"
       />
       <h3 class="product-name">${producto.nombre}</h3>
       <div class="product-price">
@@ -88,7 +77,7 @@ function agregarAlCarrito(productoId) {
   }
   
   actualizarContadorCarrito();
-  mostrarToast(`✅ ${producto.nombre} agregado`);
+  mostrarToast(`${producto.nombre} agregado`);
   animarBotonCarrito();
 }
 
@@ -189,40 +178,6 @@ function actualizarCarrito() {
 }
 
 // ================================================
-// BÚSQUEDA
-// ================================================
-function configurarBusqueda() {
-  const searchInput = document.getElementById('searchInput');
-  let timeout;
-  
-  searchInput.addEventListener('input', (e) => {
-    clearTimeout(timeout);
-    
-    timeout = setTimeout(() => {
-      const query = e.target.value.toLowerCase().trim();
-      
-      if (!query) {
-        productosActuales = [...PRODUCTOS];
-        renderizarProductos(productosActuales);
-        return;
-      }
-      
-      productosActuales = PRODUCTOS.filter(producto =>
-        producto.nombre.toLowerCase().includes(query)
-      );
-      
-      renderizarProductos(productosActuales);
-    }, 300);
-  });
-}
-
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  productosActuales = [...PRODUCTOS];
-  renderizarProductos(productosActuales);
-}
-
-// ================================================
 // MODAL
 // ================================================
 function abrirCarrito() {
@@ -243,7 +198,7 @@ function cerrarCarrito() {
 // ================================================
 function confirmarPedido() {
   if (carrito.length === 0) {
-    mostrarToast('❌ El carrito está vacío', 'error');
+    mostrarToast('El carrito está vacío');
     return;
   }
   
@@ -263,9 +218,8 @@ function confirmarPedido() {
   const url = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
   window.open(url, '_blank');
   
-  mostrarToast('📱 Abriendo WhatsApp...', 'success');
+  mostrarToast('Abriendo WhatsApp...');
   
-  // Limpiar carrito después de 2 segundos
   setTimeout(() => {
     carrito = [];
     actualizarContadorCarrito();
@@ -276,7 +230,7 @@ function confirmarPedido() {
 // ================================================
 // UTILIDADES
 // ================================================
-function mostrarToast(mensaje, tipo = 'success') {
+function mostrarToast(mensaje) {
   const toast = document.getElementById('toast');
   toast.textContent = mensaje;
   toast.classList.add('show');
@@ -303,8 +257,6 @@ function configurarEventListeners() {
   document.getElementById('modalOverlay').addEventListener('click', cerrarCarrito);
   document.getElementById('confirmButton').addEventListener('click', confirmarPedido);
   
-  configurarBusqueda();
-  
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       cerrarCarrito();
@@ -317,4 +269,3 @@ window.agregarAlCarrito = agregarAlCarrito;
 window.aumentarCantidad = aumentarCantidad;
 window.disminuirCantidad = disminuirCantidad;
 window.actualizarCantidad = actualizarCantidad;
-window.clearSearch = clearSearch;
