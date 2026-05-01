@@ -1,13 +1,13 @@
 // CONFIGURACIÓN
 const CONFIG = {
-  WHATSAPP_NUMBER: '5217713439201',
+  WHATSAPP_NUMBER: '5217713188735',
 };
 
 // DATOS DE PRODUCTOS
 const PRODUCTOS = [
   { id: 1, nombre: 'Gelatina de Bombón', precio: 350, imagen: 'Images/1.png' },
   { id: 2, nombre: 'Gelatina frutal', precio: 450, imagen: 'Images/2.png' },
-  { id: 3, nombre: 'Gelatina de mango (mus)', precio: 350, imagen: 'Images/3.png' },
+  { id: 3, nombre: 'Gelatina de mango (mus)', precio: 300, imagen: 'Images/3.png' },
   { id: 4, nombre: 'Gelatina de mosaico', precio: 250, imagen: 'Images/4.png' },
   { id: 5, nombre: 'Gelatina flotante azul', precio: 350, imagen: 'Images/5.png' },
   { id: 6, nombre: 'Gelatina tres chocolates', precio: 400, imagen: 'Images/6.png' },
