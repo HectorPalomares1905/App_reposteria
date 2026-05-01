@@ -168,17 +168,20 @@ function confirmarPedido() {
   const fechaFormateada = fecha.toLocaleString('es-MX', {
     year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
   });
-  let mensaje = 'Hola! Quiero hacer un pedido a nombre de: ' + customerName + '\n\n';
+  let mensaje = '¡Hola! 👋 Soy ' + customerName + '\n\n';
+  mensaje += 'Me gustaría ordenar:\n\n';
+  
   let total = 0;
   for (let i = 0; i < carrito.length; i++) {
     const item = carrito[i];
     const subtotal = item.precio * item.cantidad;
     total += subtotal;
-    mensaje += (i + 1) + '. ' + item.nombre + '\n';
-    mensaje += '   $' + item.precio.toFixed(2) + ' x ' + item.cantidad + ' = $' + subtotal.toFixed(2) + ' MXN\n\n';
+    mensaje += '🍮 ' + item.nombre + '\n';
+    mensaje += '   $' + item.precio.toFixed(2) + ' × ' + item.cantidad + ' = $' + subtotal.toFixed(2) + '\n\n';
   }
-  mensaje += '-------------------\nTOTAL: $' + total.toFixed(2) + ' MXN\n\n';
-  mensaje += 'Fecha y hora tentativa de entrega: ' + fechaFormateada + '\n';
+  mensaje += '───────────────\n';
+  mensaje += 'Total: $' + total.toFixed(2) + ' MXN\n\n';
+  mensaje += '📅 Fecha deseada: ' + fechaFormateada + '\n¿Tienen disponibilidad?';
 
   const url = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(mensaje);
   window.open(url, '_blank');
