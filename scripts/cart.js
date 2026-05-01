@@ -1,175 +1,320 @@
-const carrito = [];
+// ================================================
+// CONFIGURACIÓN
+// ================================================
+const CONFIG = {
+  WHATSAPP_NUMBER: '5217713439201', // Número de WhatsApp con código de país
+};
 
-// Espera a que el DOM cargue
-window.addEventListener('DOMContentLoaded', () => {
-  // Selecciona todas las tarjetas de producto
-  document.querySelectorAll('.product-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const nombre = card.querySelector('.product-name').textContent;
-      const precio = card.querySelector('.product-price').textContent;
-      
-      // Buscar si el producto ya existe en el carrito
-      const existingItem = carrito.find(item => item.nombre === nombre);
-      
-      if (existingItem) {
-        existingItem.cantidad++;
-      } else {
-        carrito.push({ nombre, precio, cantidad: 1 });
-      }
-      
-      // Animación de confirmación
-      card.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        card.style.transform = 'scale(1)';
-      }, 150);
-      
-      // Mostrar notificación
-      showNotification(`${nombre} agregado al carrito`);
-    });
-  });
+// ================================================
+// DATOS DE PRODUCTOS (de tu tabla de Google Sheets)
+// ================================================
+const PRODUCTOS = [
+  { id: 1, nombre: 'Gelatina de Bombón', precio: 350, imagen: 'Images/1.png' },
+  { id: 2, nombre: 'Gelatina frutal', precio: 450, imagen: 'Images/2.png' },
+  { id: 3, nombre: 'Gelatina de mango (mus)', precio: 350, imagen: 'Images/3.png' },
+  { id: 4, nombre: 'Gelatina de mosaico', precio: 250, imagen: 'Images/4.png' },
+  { id: 5, nombre: 'Gelatina flotante azul', precio: 350, imagen: 'Images/5.png' },
+  { id: 6, nombre: 'Gelatina tres chocolates', precio: 400, imagen: 'Images/6.png' },
+  { id: 7, nombre: 'Gelatina de zanahoria', precio: 300, imagen: 'Images/7.png' },
+  { id: 8, nombre: 'Gelatina de mango clásica', precio: 200, imagen: 'Images/9.png' },
+  { id: 9, nombre: 'Gelatina decorada (personaje)', precio: 250, imagen: 'Images/10.png' },
+  { id: 10, nombre: 'Gelatinas artísticas', precio: 300, imagen: 'Images/11.png' },
+  { id: 11, nombre: 'Gelatina de fresas', precio: 350, imagen: 'Images/12.png' },
+  { id: 12, nombre: 'Gelatina temática (bebidas)', precio: 300, imagen: 'Images/13.png' }
+];
 
-  // Modal del carrito
-  const modal = document.getElementById('cartModal');
-  const botonCarrito = document.querySelector('.nav-item.cart');
-  const closeBtn = document.querySelector('.close');
-  const confirmBtn = document.getElementById('confirmOrder');
+// ================================================
+// ESTADO GLOBAL
+// ================================================
+let carrito = [];
+let productosActuales = [...PRODUCTOS];
 
-  // Abrir modal
-  botonCarrito.addEventListener('click', (e) => {
-    e.preventDefault();
-    modal.style.display = 'block';
-    updateCartDisplay();
-  });
-
-  // Cerrar modal
-  closeBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-  });
-
-  // Cerrar modal al hacer clic fuera
-  window.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.style.display = 'none';
-    }
-  });
-
-  // Confirmar pedido
-  confirmBtn.addEventListener('click', () => {
-    if (carrito.length === 0) {
-      showNotification('El carrito está vacío');
-      return;
-    }
-
-    let mensaje = "¡Hola! Quiero hacer un pedido:\n\n";
-    let total = 0;
-    
-    carrito.forEach((item, index) => {
-      const precioNumerico = parseFloat(item.precio.replace('$', ''));
-      const subtotal = precioNumerico * item.cantidad;
-      total += subtotal;
-      
-      mensaje += `${index + 1}. ${item.nombre}\n`;
-      mensaje += `   Precio: ${item.precio} x ${item.cantidad} = $${subtotal.toFixed(2)}\n\n`;
-    });
-    
-    mensaje += `💰 Total: $${total.toFixed(2)}`;
-
-    const numeroWhatsApp = "7713439201"; // <- CAMBIA este número por el tuyo con código de país
-    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
-    
-    // Opcional: limpiar carrito después del pedido
-    // carrito.length = 0;
-    // updateCartDisplay();
-  });
+// ================================================
+// INICIALIZACIÓN
+// ================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderizarProductos(productosActuales);
+  configurarEventListeners();
+  actualizarContadorCarrito();
 });
 
-function updateCartDisplay() {
-  const cartItems = document.getElementById('cartItems');
-  const totalPrice = document.getElementById('totalPrice');
-  const confirmBtn = document.getElementById('confirmOrder');
-
-  if (carrito.length === 0) {
-    cartItems.innerHTML = '<div class="empty-cart">Tu carrito está vacío 😔</div>';
-    totalPrice.textContent = '$0.00';
-    confirmBtn.disabled = true;
+// ================================================
+// RENDERIZAR PRODUCTOS
+// ================================================
+function renderizarProductos(productos) {
+  const grid = document.getElementById('productsGrid');
+  const noResults = document.getElementById('noResults');
+  
+  if (productos.length === 0) {
+    grid.innerHTML = '';
+    noResults.style.display = 'block';
     return;
   }
+  
+  noResults.style.display = 'none';
+  
+  grid.innerHTML = productos.map(producto => `
+    <div class="product-card" onclick="agregarAlCarrito(${producto.id})">
+      <img 
+        src="${producto.imagen}" 
+        alt="${producto.nombre}" 
+        class="product-image"
+        loading="lazy"
+        onerror="this.src='Images/default.png'"
+      />
+      <h3 class="product-name">${producto.nombre}</h3>
+      <div class="product-price">
+        $${producto.precio.toFixed(2)}
+        <span class="price-currency">MXN</span>
+      </div>
+    </div>
+  `).join('');
+}
 
+// ================================================
+// CARRITO DE COMPRAS
+// ================================================
+function agregarAlCarrito(productoId) {
+  const producto = PRODUCTOS.find(p => p.id === productoId);
+  
+  if (!producto) return;
+  
+  const itemExistente = carrito.find(item => item.id === productoId);
+  
+  if (itemExistente) {
+    itemExistente.cantidad++;
+  } else {
+    carrito.push({ ...producto, cantidad: 1 });
+  }
+  
+  actualizarContadorCarrito();
+  mostrarToast(`✅ ${producto.nombre} agregado`);
+  animarBotonCarrito();
+}
+
+function eliminarDelCarrito(productoId) {
+  carrito = carrito.filter(item => item.id !== productoId);
+  actualizarCarrito();
+  actualizarContadorCarrito();
+}
+
+function actualizarCantidad(productoId, nuevaCantidad) {
+  const cantidad = parseInt(nuevaCantidad);
+  
+  if (cantidad <= 0) {
+    eliminarDelCarrito(productoId);
+    return;
+  }
+  
+  const item = carrito.find(item => item.id === productoId);
+  if (item) {
+    item.cantidad = cantidad;
+    actualizarCarrito();
+  }
+}
+
+function aumentarCantidad(productoId) {
+  const item = carrito.find(item => item.id === productoId);
+  if (item) {
+    item.cantidad++;
+    actualizarCarrito();
+  }
+}
+
+function disminuirCantidad(productoId) {
+  const item = carrito.find(item => item.id === productoId);
+  if (item) {
+    if (item.cantidad > 1) {
+      item.cantidad--;
+      actualizarCarrito();
+    } else {
+      eliminarDelCarrito(productoId);
+    }
+  }
+}
+
+function actualizarContadorCarrito() {
+  const contador = document.getElementById('cartCount');
+  const total = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+  contador.textContent = total;
+}
+
+function actualizarCarrito() {
+  const cartItems = document.getElementById('cartItems');
+  const totalAmount = document.getElementById('totalAmount');
+  const confirmButton = document.getElementById('confirmButton');
+  
+  if (carrito.length === 0) {
+    cartItems.innerHTML = `
+      <div class="empty-cart">
+        <div class="empty-cart-icon">🛒</div>
+        <p>Tu carrito está vacío</p>
+      </div>
+    `;
+    totalAmount.textContent = '$0.00 MXN';
+    confirmButton.disabled = true;
+    return;
+  }
+  
   let total = 0;
-  let html = '';
-
-  carrito.forEach((item, index) => {
-    const precioNumerico = parseFloat(item.precio.replace('$', ''));
-    const subtotal = precioNumerico * item.cantidad;
+  
+  cartItems.innerHTML = carrito.map(item => {
+    const subtotal = item.precio * item.cantidad;
     total += subtotal;
-
-    html += `
+    
+    return `
       <div class="cart-item">
         <div class="item-info">
           <div class="item-name">${item.nombre}</div>
-          <div class="item-price">${item.precio} c/u</div>
+          <div class="item-price">$${item.precio.toFixed(2)} MXN c/u</div>
         </div>
         <div class="quantity-controls">
-          <button class="quantity-btn" onclick="decreaseQuantity(${index})">-</button>
-          <input type="number" class="quantity-input" value="${item.cantidad}" 
-                 onchange="updateQuantity(${index}, this.value)" min="1">
-          <button class="quantity-btn" onclick="increaseQuantity(${index})">+</button>
+          <button class="quantity-btn" onclick="disminuirCantidad(${item.id})">−</button>
+          <input 
+            type="number" 
+            class="quantity-input" 
+            value="${item.cantidad}" 
+            min="1"
+            onchange="actualizarCantidad(${item.id}, this.value)"
+          />
+          <button class="quantity-btn" onclick="aumentarCantidad(${item.id})">+</button>
         </div>
       </div>
     `;
+  }).join('');
+  
+  totalAmount.textContent = `$${total.toFixed(2)} MXN`;
+  confirmButton.disabled = false;
+  actualizarContadorCarrito();
+}
+
+// ================================================
+// BÚSQUEDA
+// ================================================
+function configurarBusqueda() {
+  const searchInput = document.getElementById('searchInput');
+  let timeout;
+  
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(timeout);
+    
+    timeout = setTimeout(() => {
+      const query = e.target.value.toLowerCase().trim();
+      
+      if (!query) {
+        productosActuales = [...PRODUCTOS];
+        renderizarProductos(productosActuales);
+        return;
+      }
+      
+      productosActuales = PRODUCTOS.filter(producto =>
+        producto.nombre.toLowerCase().includes(query)
+      );
+      
+      renderizarProductos(productosActuales);
+    }, 300);
   });
-
-  cartItems.innerHTML = html;
-  totalPrice.textContent = `$${total.toFixed(2)}`;
-  confirmBtn.disabled = false;
 }
 
-function increaseQuantity(index) {
-  carrito[index].cantidad++;
-  updateCartDisplay();
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  productosActuales = [...PRODUCTOS];
+  renderizarProductos(productosActuales);
 }
 
-function decreaseQuantity(index) {
-  if (carrito[index].cantidad > 1) {
-    carrito[index].cantidad--;
-  } else {
-    carrito.splice(index, 1);
+// ================================================
+// MODAL
+// ================================================
+function abrirCarrito() {
+  const modal = document.getElementById('cartModal');
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  actualizarCarrito();
+}
+
+function cerrarCarrito() {
+  const modal = document.getElementById('cartModal');
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// ================================================
+// WHATSAPP
+// ================================================
+function confirmarPedido() {
+  if (carrito.length === 0) {
+    mostrarToast('❌ El carrito está vacío', 'error');
+    return;
   }
-  updateCartDisplay();
-}
-
-function updateQuantity(index, newQuantity) {
-  const quantity = parseInt(newQuantity);
-  if (quantity > 0) {
-    carrito[index].cantidad = quantity;
-  } else {
-    carrito.splice(index, 1);
-  }
-  updateCartDisplay();
-}
-
-function showNotification(message) {
-  // Crear notificación temporal
-  const notification = document.createElement('div');
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #25D366;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 3000;
-    font-weight: 600;
-    animation: slideIn 0.3s ease;
-  `;
   
-  notification.textContent = message;
-  document.body.appendChild(notification);
+  let mensaje = '🍮 *¡Hola! Quiero hacer un pedido:*\n\n';
+  let total = 0;
   
+  carrito.forEach((item, index) => {
+    const subtotal = item.precio * item.cantidad;
+    total += subtotal;
+    
+    mensaje += `${index + 1}. *${item.nombre}*\n`;
+    mensaje += `   💰 $${item.precio.toFixed(2)} × ${item.cantidad} = $${subtotal.toFixed(2)} MXN\n\n`;
+  });
+  
+  mensaje += `━━━━━━━━━━━━━━━\n💰 *TOTAL: $${total.toFixed(2)} MXN*`;
+  
+  const url = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, '_blank');
+  
+  mostrarToast('📱 Abriendo WhatsApp...', 'success');
+  
+  // Limpiar carrito después de 2 segundos
   setTimeout(() => {
-    notification.remove();
+    carrito = [];
+    actualizarContadorCarrito();
+    cerrarCarrito();
   }, 2000);
 }
+
+// ================================================
+// UTILIDADES
+// ================================================
+function mostrarToast(mensaje, tipo = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = mensaje;
+  toast.classList.add('show');
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+function animarBotonCarrito() {
+  const btn = document.getElementById('cartButton');
+  btn.style.transform = 'scale(1.1)';
+  setTimeout(() => {
+    btn.style.transform = 'scale(1)';
+  }, 200);
+}
+
+// ================================================
+// EVENT LISTENERS
+// ================================================
+function configurarEventListeners() {
+  document.getElementById('cartButton').addEventListener('click', abrirCarrito);
+  document.getElementById('closeModal').addEventListener('click', cerrarCarrito);
+  document.getElementById('modalOverlay').addEventListener('click', cerrarCarrito);
+  document.getElementById('confirmButton').addEventListener('click', confirmarPedido);
+  
+  configurarBusqueda();
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      cerrarCarrito();
+    }
+  });
+}
+
+// Exponer funciones globales
+window.agregarAlCarrito = agregarAlCarrito;
+window.aumentarCantidad = aumentarCantidad;
+window.disminuirCantidad = disminuirCantidad;
+window.actualizarCantidad = actualizarCantidad;
+window.clearSearch = clearSearch;
