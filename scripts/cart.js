@@ -11,7 +11,7 @@ const PRODUCTOS = [
   { id: 4, nombre: 'Gelatina de mosaico', precio: 350, imagen: 'Images/4.png' },
   { id: 5, nombre: 'Gelatina flotante azul', precio: 350, imagen: 'Images/5.png' },
   { id: 6, nombre: 'Gelatina tres chocolates', precio: 450, imagen: 'Images/6.png' },
-  { id: 7, nombre: 'Gelatina de zanahoria', precio: 350, imagen: 'Images/7.png' },
+  { id: 7, nombre: 'Gelatina de zanahoria', precio: 400, imagen: 'Images/7.png' },
   { id: 8, nombre: 'Gelatina de mango clásica', precio: 300, imagen: 'Images/9.png' },
   { id: 9, nombre: 'Gelatina decorada (personaje)', precio: 380, imagen: 'Images/10.png' },
   { id: 10, nombre: 'Gelatinas artísticas individual', precio: 35, imagen: 'Images/11.png' },
